@@ -84,39 +84,4 @@ public class UserBatchConfiguration {
         fieldSetMapper.setTargetType(User.class);
         return fieldSetMapper;
     }
-
-}
-
-@Component
-@StepScope
-class Processor implements ItemProcessor<User, User> {
-
-    private static final Map<String, String> DEPT_NAMES;
-
-    static {
-        DEPT_NAMES = new HashMap<>();
-        DEPT_NAMES.put("001", "Technology");
-        DEPT_NAMES.put("002", "Operations");
-        DEPT_NAMES.put("003", "Accounts");
-    }
-
-    @Override
-    public User process(User user) {
-        String deptName = DEPT_NAMES.get(user.getDept());
-        user.setDept(deptName);
-        return user;
-    }
-}
-
-@Component
-@RequiredArgsConstructor
-@StepScope
-class JpaWriter implements ItemWriter<User> {
-
-    private final UserRepository userRepository;
-
-    @Override
-    public void write(List<? extends User> users) {
-        userRepository.saveAll(users);
-    }
 }
