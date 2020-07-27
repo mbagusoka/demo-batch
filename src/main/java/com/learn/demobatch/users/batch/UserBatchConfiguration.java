@@ -1,8 +1,6 @@
 package com.learn.demobatch.users.batch;
 
 import com.learn.demobatch.users.entity.User;
-import com.learn.demobatch.users.repository.UserRepository;
-import lombok.RequiredArgsConstructor;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
@@ -16,16 +14,10 @@ import org.springframework.batch.item.file.FlatFileItemReader;
 import org.springframework.batch.item.file.LineMapper;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
-import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Component;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 @Configuration
 public class UserBatchConfiguration {
@@ -55,17 +47,17 @@ public class UserBatchConfiguration {
 
     @Bean
     @StepScope
-    public FlatFileItemReader<User> itemReader(@Value("classpath:users.csv") Resource resource) {
+    public FlatFileItemReader<User> itemReader(@Value("classpath:usersdynamic.csv") Resource resource) {
         FlatFileItemReader<User> itemReader = new FlatFileItemReader<>();
         itemReader.setResource(resource);
         itemReader.setName("CSV-Reader");
         itemReader.setLinesToSkip(1);
-        itemReader.setLineMapper(lineMapper());
+        itemReader.setLineMapper(lineMapper(resource));
         return itemReader;
     }
 
-    private LineMapper<User> lineMapper() {
-        DelimitedLineTokenizer lineTokenizer = getDelimitedLineTokenizer();
+    private LineMapper<User> lineMapper(Resource resource) {
+        SimpleDynamicLineTokenizer lineTokenizer = getLineTokenizer(resource);
         BeanWrapperFieldSetMapper<User> fieldSetMapper = getUserBeanWrapperFieldSetMapper();
         DefaultLineMapper<User> lineMapper = new DefaultLineMapper<>();
         lineMapper.setLineTokenizer(lineTokenizer);
@@ -73,8 +65,8 @@ public class UserBatchConfiguration {
         return lineMapper;
     }
 
-    private DelimitedLineTokenizer getDelimitedLineTokenizer() {
-        DelimitedLineTokenizer lineTokenizer = new DelimitedLineTokenizer();
+    private SimpleDynamicLineTokenizer getLineTokenizer(Resource resource) {
+        SimpleDynamicLineTokenizer lineTokenizer = new SimpleDynamicLineTokenizer(resource);
         lineTokenizer.setNames("id", "name", "dept", "salary");
         return lineTokenizer;
     }
