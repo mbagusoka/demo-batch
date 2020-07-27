@@ -7,6 +7,7 @@ import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.ItemReader;
@@ -53,6 +54,7 @@ public class UserBatchConfiguration {
     }
 
     @Bean
+    @StepScope
     public FlatFileItemReader<User> itemReader(@Value("classpath:users.csv") Resource resource) {
         FlatFileItemReader<User> itemReader = new FlatFileItemReader<>();
         itemReader.setResource(resource);
@@ -86,6 +88,7 @@ public class UserBatchConfiguration {
 }
 
 @Component
+@StepScope
 class Processor implements ItemProcessor<User, User> {
 
     private static final Map<String, String> DEPT_NAMES;
@@ -107,6 +110,7 @@ class Processor implements ItemProcessor<User, User> {
 
 @Component
 @RequiredArgsConstructor
+@StepScope
 class JpaWriter implements ItemWriter<User> {
 
     private final UserRepository userRepository;
